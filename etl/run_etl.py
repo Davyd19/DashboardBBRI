@@ -3,12 +3,14 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from database import load_data_mart
 from pipeline import run_pipeline
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run ETL for BBRI BI dashboard.")
     parser.add_argument("--input", default=str(Path(__file__).resolve().parents[1] / "data" / "raw" / "BBRI.csv"))
+    parser.add_argument("--no-db", action="store_true", help="Run ETL without loading results to MySQL.")
     args = parser.parse_args()
     data, report, mart, metrics = run_pipeline(args.input)
     print(f"Validation status: {report.status}")
@@ -28,6 +30,11 @@ def main() -> None:
         print(f"Processed rows: {len(data)}")
         print(f"Mart tables: {', '.join(mart.keys())}")
         print(f"Latest close: {metrics['latest_close']}")
+        if args.no_db:
+            print("Database load skipped (--no-db).")
+        else:
+            load_data_mart(mart)
+            print("Database load completed: dashboard_bbri.")
 
 
 if __name__ == "__main__":

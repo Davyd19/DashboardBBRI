@@ -2,14 +2,14 @@
 
 Dashboard Business Intelligence untuk studi kasus Market Intelligence & Corporate Action Support BBRI.
 
-Project ini dibuat sederhana: ETL menggunakan Python, dashboard menggunakan Streamlit, dan dataset utama berada di `data/raw/BBRI.csv`.
+Project ini dibuat sederhana: ETL menggunakan Python, hasil data mart dimuat ke MySQL/MariaDB, dashboard menggunakan Streamlit, dan dataset utama berada di `data/raw/BBRI.csv`.
 
 ## Struktur Folder
 
 - `dashboard/`: aplikasi Streamlit.
 - `dashboard/assets/`: logo dan aset dashboard.
 - `data/raw/`: dataset sumber.
-- `etl/`: validasi, transformasi, dan pipeline ETL Python.
+- `etl/`: validasi, transformasi, pipeline ETL Python, dan loader MySQL.
 - `docs/`: panduan menjalankan project dan skema data.
 - `tests/`: skenario validasi sederhana.
 
@@ -26,7 +26,21 @@ python -m venv .venv
 .\.venv\Scripts\python.exe etl\run_etl.py
 ```
 
-ETL membaca CSV, memvalidasi data, melakukan preprocessing, membentuk data mart di memory, dan menampilkan ringkasan hasil di terminal. ETL tidak membuat file output tambahan agar repo tetap bersih.
+ETL membaca CSV, memvalidasi data, melakukan preprocessing, membentuk data mart, lalu memuatnya ke database MySQL/MariaDB `dashboard_bbri`.
+
+Konfigurasi default database:
+
+- `DB_HOST=localhost`
+- `DB_PORT=3306`
+- `DB_USER=root`
+- `DB_PASSWORD=`
+- `DB_NAME=dashboard_bbri`
+
+Jika hanya ingin menjalankan ETL tanpa load database:
+
+```powershell
+.\.venv\Scripts\python.exe etl\run_etl.py --no-db
+```
 
 ## Menjalankan Dashboard
 
@@ -36,7 +50,7 @@ ETL membaca CSV, memvalidasi data, melakukan preprocessing, membentuk data mart 
 
 Dashboard memiliki dua halaman:
 
-- `Dashboard`: KPI, visual signal, dan visualisasi pasar BBRI.
+- `Dashboard`: KPI, visual signal, dan visualisasi pasar BBRI. Dashboard membaca MySQL terlebih dahulu dan fallback ke CSV jika database belum siap.
 - `Proses Data`: upload CSV, validasi data, quality check, alur ETL, dan preview data hasil transformasi.
 
 ## Catatan Data

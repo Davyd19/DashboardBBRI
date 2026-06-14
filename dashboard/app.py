@@ -14,12 +14,19 @@ sys.path.append(str(PROJECT_ROOT / "etl"))
 
 from pipeline import (  # noqa: E402
     RAW_PATH,
+    ValidationReport,
     build_data_mart,
     run_pipeline,
     summarize_metrics,
     transform_dataframe,
     validate_dataframe,
 )
+
+try:  # noqa: E402
+    from database import load_data_mart, read_fact_data
+except Exception:  # pragma: no cover
+    load_data_mart = None
+    read_fact_data = None
 
 
 st.set_page_config(
@@ -676,6 +683,33 @@ def load_default_data():
     return run_pipeline(RAW_PATH)
 
 
+def report_from_database(data: pd.DataFrame) -> ValidationReport:
+    return ValidationReport(
+        status="DATABASE",
+        errors=[],
+        warnings=[],
+        row_count=len(data),
+        column_count=len(data.columns),
+        min_date=data["Date"].min().strftime("%Y-%m-%d") if not data.empty else None,
+        max_date=data["Date"].max().strftime("%Y-%m-%d") if not data.empty else None,
+        duplicate_dates=int(data["Date"].duplicated().sum()) if "Date" in data else 0,
+        open_zero_count=int(data.get("Open_Was_Imputed", pd.Series(dtype=bool)).sum()),
+        missing_critical_count=0,
+        ticker_values=sorted([str(x) for x in data["Ticker"].dropna().unique().tolist()]) if "Ticker" in data else [],
+    )
+
+
+@st.cache_data(show_spinner=False)
+def load_database_data():
+    if read_fact_data is None:
+        raise RuntimeError("Modul database tidak tersedia.")
+    data = read_fact_data()
+    report = report_from_database(data)
+    mart = build_data_mart(data)
+    metrics = summarize_metrics(data)
+    return data, report, mart, metrics
+
+
 @st.cache_data(show_spinner=False)
 def filter_by_date(data: pd.DataFrame, start_date: str, end_date: str) -> pd.DataFrame:
     start = pd.to_datetime(start_date).date()
@@ -739,8 +773,26 @@ def get_active_data():
         transformed = transform_dataframe(validated)
         mart = build_data_mart(transformed)
         metrics = summarize_metrics(transformed)
+        if load_data_mart is not None:
+            try:
+                load_data_mart(mart)
+                st.session_state["data_source"] = "Uploaded CSV -> MySQL"
+                st.cache_data.clear()
+            except Exception as exc:
+                st.session_state["db_warning"] = f"Upload valid, tetapi gagal load ke MySQL: {exc}"
+                st.session_state["data_source"] = "Uploaded CSV"
+        else:
+            st.session_state["data_source"] = "Uploaded CSV"
         return transformed, report, mart, metrics
-    return load_default_data()
+    try:
+        data, report, mart, metrics = load_database_data()
+        st.session_state["data_source"] = "MySQL"
+        st.session_state.pop("db_warning", None)
+        return data, report, mart, metrics
+    except Exception as exc:
+        st.session_state["db_warning"] = f"Database fallback aktif: {exc}"
+        st.session_state["data_source"] = "CSV"
+        return load_default_data()
 
 
 def hero(report, metrics: dict[str, Any]) -> None:
@@ -807,6 +859,9 @@ def sidebar(report, data: pd.DataFrame) -> tuple[str, pd.DataFrame]:
     st.sidebar.markdown("---")
     st.sidebar.markdown("**Status Data**")
     st.sidebar.write(report.status)
+    st.sidebar.caption(f"Source: {st.session_state.get('data_source', 'CSV')}")
+    if st.session_state.get("db_warning"):
+        st.sidebar.warning(st.session_state["db_warning"])
     st.sidebar.caption(f"{report.min_date} - {report.max_date}")
     st.sidebar.caption(f"Rows: {report.row_count:,} | Open imputed: {report.open_zero_count}")
     return page, filtered
