@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#f5f9fe"/>
+  <rect x="28" y="26" width="222" height="848" rx="18" fill="#063a70"/>
+  <rect x="58" y="55" width="60" height="60" rx="12" fill="#00529c"/>
+  <text x="72" y="91" font-family="Arial" font-size="20" font-weight="700" fill="#fff">BRI</text>
+  <text x="58" y="164" font-family="Arial" font-size="18" font-weight="700" fill="#fff">BBRI BI</text>
+  <text x="58" y="198" font-family="Arial" font-size="14" fill="#cde8ff">Executive Signal</text>
+  <rect x="54" y="235" width="170" height="41" rx="10" fill="#0e477c" stroke="#4388c0"/>
+  <text x="78" y="261" font-family="Arial" font-size="14" fill="#ddeeff">Dashboard</text>
+  <rect x="54" y="288" width="170" height="41" rx="10" fill="#155b97" stroke="#4388c0"/>
+  <text x="78" y="314" font-family="Arial" font-size="14" font-weight="700" fill="#fff">Proses Data</text>
+
+  <rect x="285" y="26" width="1283" height="100" rx="18" fill="#00529c"/>
+  <text x="315" y="65" font-family="Arial" font-size="28" font-weight="700" fill="#fff">Proses Data dan Validasi ETL BBRI</text>
+  <text x="316" y="96" font-family="Arial" font-size="14" fill="#ddeeff">Upload CSV, validasi schema, quality warning, transformasi, dan output data mart</text>
+
+  <g font-family="Arial">
+    <g transform="translate(285 155)"><rect width="230" height="105" rx="12" fill="#fff" stroke="#d8e5f3"/><rect width="230" height="6" rx="6" fill="#d97706"/><text x="14" y="31" font-size="12" font-weight="700" fill="#667085">STATUS</text><text x="14" y="64" font-size="24" font-weight="700" fill="#111827">WARNING</text><text x="14" y="89" font-size="13" fill="#667085">hasil validasi</text></g>
+    <g transform="translate(535 155)"><rect width="230" height="105" rx="12" fill="#fff" stroke="#d8e5f3"/><rect width="230" height="6" rx="6" fill="#00529c"/><text x="14" y="31" font-size="12" font-weight="700" fill="#667085">ROWS</text><text x="14" y="64" font-size="24" font-weight="700" fill="#111827">1,537</text><text x="14" y="89" font-size="13" fill="#667085">26 kolom</text></g>
+    <g transform="translate(785 155)"><rect width="230" height="105" rx="12" fill="#fff" stroke="#d8e5f3"/><rect width="230" height="6" rx="6" fill="#00529c"/><text x="14" y="31" font-size="12" font-weight="700" fill="#667085">PERIODE</text><text x="14" y="64" font-size="23" font-weight="700" fill="#111827">2020-01-02</text><text x="14" y="89" font-size="13" fill="#667085">sampai 2026-05-29</text></g>
+    <g transform="translate(1035 155)"><rect width="230" height="105" rx="12" fill="#fff" stroke="#d8e5f3"/><rect width="230" height="6" rx="6" fill="#059669"/><text x="14" y="31" font-size="12" font-weight="700" fill="#667085">DUPLICATE DATE</text><text x="14" y="64" font-size="24" font-weight="700" fill="#111827">0</text><text x="14" y="89" font-size="13" fill="#667085">data harian unik</text></g>
+    <g transform="translate(1285 155)"><rect width="230" height="105" rx="12" fill="#fff" stroke="#d8e5f3"/><rect width="230" height="6" rx="6" fill="#d97706"/><text x="14" y="31" font-size="12" font-weight="700" fill="#667085">OPEN = 0</text><text x="14" y="64" font-size="24" font-weight="700" fill="#111827">114</text><text x="14" y="89" font-size="13" fill="#667085">quality warning</text></g>
+  </g>
+
+  <text x="285" y="330" font-family="Arial" font-size="20" font-weight="700" fill="#111827">ETL Pipeline</text>
+  <g font-family="Arial">
+    <g transform="translate(285 350)"><rect width="285" height="100" rx="12" fill="#fff" stroke="#d8e5f3"/><text x="18" y="43" font-size="18" font-weight="700" fill="#00529c">Extract</text><text x="18" y="72" font-size="14" fill="#667085">Membaca BBRI.csv atau CSV upload.</text></g>
+    <g transform="translate(595 350)"><rect width="285" height="100" rx="12" fill="#fff" stroke="#d8e5f3"/><text x="18" y="43" font-size="18" font-weight="700" fill="#00529c">Validate</text><text x="18" y="72" font-size="14" fill="#667085">Cek kolom, ticker, tanggal, duplicate, OHLC.</text></g>
+    <g transform="translate(905 350)"><rect width="285" height="100" rx="12" fill="#fff" stroke="#d8e5f3"/><text x="18" y="43" font-size="18" font-weight="700" fill="#00529c">Transform</text><text x="18" y="72" font-size="14" fill="#667085">Hitung MA, return, drawdown, volume ratio.</text></g>
+    <g transform="translate(1215 350)"><rect width="285" height="100" rx="12" fill="#fff" stroke="#d8e5f3"/><text x="18" y="43" font-size="18" font-weight="700" fill="#00529c">Load</text><text x="18" y="72" font-size="14" fill="#667085">Membentuk data mart dan alerts.</text></g>
+  </g>
+
+  <rect x="285" y="485" width="475" height="165" rx="12" fill="#fff" stroke="#d8e5f3"/>
+  <text x="305" y="525" font-family="Arial" font-size="18" font-weight="700" fill="#111827">Warnings</text>
+  <text x="325" y="565" font-family="Arial" font-size="15" fill="#111827">- Terdapat 114 baris Open = 0.</text>
+  <text x="325" y="599" font-family="Arial" font-size="15" fill="#111827">- Potensi outlier volume/value perlu dicek saat ETL.</text>
+
+  <rect x="785" y="485" width="745" height="165" rx="12" fill="#fff" stroke="#d8e5f3"/>
+  <text x="805" y="525" font-family="Arial" font-size="18" font-weight="700" fill="#111827">Output Data Mart</text>
+  <text x="825" y="565" font-family="Arial" font-size="15" fill="#111827">Fact_DailyMarketTrading</text><text x="1120" y="565" font-family="Arial" font-size="15" font-weight="700" fill="#00529c">1,537 rows</text><text x="1265" y="565" font-family="Arial" font-size="15" fill="#667085">31 columns</text>
+  <text x="825" y="599" font-family="Arial" font-size="15" fill="#111827">Dim_Date</text><text x="1120" y="599" font-family="Arial" font-size="15" font-weight="700" fill="#00529c">1,537 rows</text><text x="1265" y="599" font-family="Arial" font-size="15" fill="#667085">6 columns</text>
+  <text x="825" y="633" font-family="Arial" font-size="15" fill="#111827">Dim_Stock</text><text x="1120" y="633" font-family="Arial" font-size="15" font-weight="700" fill="#00529c">1 row</text><text x="1265" y="633" font-family="Arial" font-size="15" fill="#667085">6 columns</text>
+
+  <rect x="285" y="690" width="1245" height="170" rx="12" fill="#fff" stroke="#d8e5f3"/>
+  <text x="305" y="728" font-family="Arial" font-size="18" font-weight="700" fill="#111827">Preview Data Transformasi</text>
+  <text x="315" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">Date</text>
+  <text x="485" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">Close</text>
+  <text x="655" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">MA20</text>
+  <text x="825" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">MA60</text>
+  <text x="995" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">Rolling Foreign 20D</text>
+  <text x="1195" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">Drawdown Zone</text>
+  <text x="1390" y="770" font-family="Arial" font-size="13" font-weight="700" fill="#00529c">Action Watch</text>
+  <text x="315" y="815" font-family="Arial" font-size="13" fill="#111827">2026-05-29</text>
+  <text x="485" y="815" font-family="Arial" font-size="13" fill="#111827">2,950</text>
+  <text x="655" y="815" font-family="Arial" font-size="13" fill="#111827">3,128</text>
+  <text x="825" y="815" font-family="Arial" font-size="13" fill="#111827">3,428</text>
+  <text x="995" y="815" font-family="Arial" font-size="13" fill="#111827">-4.2B</text>
+  <text x="1195" y="815" font-family="Arial" font-size="13" fill="#111827">Pressure Zone</text>
+  <text x="1390" y="815" font-family="Arial" font-size="13" fill="#111827">Buyback Watch</text>
+</svg>

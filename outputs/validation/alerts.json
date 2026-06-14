@@ -1,0 +1,20 @@
+[
+  {
+    "level": "Medium",
+    "condition": "Foreign sell pressure",
+    "insight": "Akumulasi net foreign flow 20 hari terakhir berada di zona negatif.",
+    "recommendation": "Investor Relations perlu memantau narasi pasar dan minat investor asing."
+  },
+  {
+    "level": "Medium",
+    "condition": "Volume tinggi saat harga turun",
+    "insight": "Transaksi meningkat saat return harian negatif, mengindikasikan tekanan distribusi.",
+    "recommendation": "Evaluasi risiko likuiditas dan pantau transaksi beberapa hari berikutnya."
+  },
+  {
+    "level": "Watch",
+    "condition": "Buyback Watch",
+    "insight": "Harga berada dalam drawdown tinggi namun likuiditas transaksi masih memadai.",
+    "recommendation": "Pertimbangkan kajian awal buyback sebagai opsi, bukan keputusan final."
+  }
+]

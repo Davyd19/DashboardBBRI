@@ -1,0 +1,19 @@
+{
+  "status": "WARNING",
+  "errors": [],
+  "warnings": [
+    "Terdapat 114 baris Open = 0; nilai diproses dengan imputasi dari Previous atau Close hari sebelumnya.",
+    "Terdapat 1 potensi outlier Value transaksi.",
+    "Terdapat 2 potensi outlier Volume transaksi."
+  ],
+  "row_count": 1537,
+  "column_count": 26,
+  "min_date": "2020-01-02",
+  "max_date": "2026-05-29",
+  "duplicate_dates": 0,
+  "open_zero_count": 114,
+  "missing_critical_count": 0,
+  "ticker_values": [
+    "BBRI"
+  ]
+}
