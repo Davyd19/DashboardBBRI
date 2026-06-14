@@ -15,7 +15,6 @@ sys.path.append(str(PROJECT_ROOT / "etl"))
 from pipeline import (  # noqa: E402
     RAW_PATH,
     build_data_mart,
-    generate_alerts,
     run_pipeline,
     summarize_metrics,
     transform_dataframe,
@@ -189,17 +188,6 @@ def inject_style() -> None:
             font-size:13px;
             margin-bottom:10px;
         }
-        .panel {
-            background:#ffffff;
-            border:1px solid var(--line);
-            border-radius:12px;
-            padding:15px 17px;
-            box-shadow:0 8px 20px rgba(16,24,40,.05);
-            min-height:158px;
-        }
-        .panel h3 { margin:0 0 10px; color:var(--ink); font-size:17px; }
-        .panel ul { padding-left:18px; margin:0; color:var(--ink); font-size:14px; line-height:1.55; }
-        .panel li { margin-bottom:7px; }
         .signal-tile {
             background:#ffffff;
             border:1px solid var(--line);
@@ -269,14 +257,6 @@ def inject_style() -> None:
         }
         .chart-title { color:var(--ink); font-size:14px; font-weight:850; margin-bottom:2px; }
         .chart-note { color:var(--muted); font-size:12px; margin-bottom:8px; }
-        .step-card {
-            background:#ffffff;
-            border:1px solid var(--line);
-            border-radius:10px;
-            padding:13px 14px;
-            min-height:98px;
-        }
-        .step-card b { color:var(--bbri); display:block; margin-bottom:5px; }
         .status-chip {
             display:inline-flex;
             align-items:center;
@@ -693,7 +673,7 @@ def chart_card(title: str, note: str, frame: pd.DataFrame, height: int = 280) ->
 
 @st.cache_data(show_spinner=False)
 def load_default_data():
-    return run_pipeline(RAW_PATH, write_outputs=False)
+    return run_pipeline(RAW_PATH)
 
 
 @st.cache_data(show_spinner=False)
@@ -755,12 +735,11 @@ def get_active_data():
         uploaded.seek(0)
         validated, report = validate_dataframe(raw)
         if report.status == "ERROR":
-            return validated, report, {}, {}, []
+            return validated, report, {}, {}
         transformed = transform_dataframe(validated)
         mart = build_data_mart(transformed)
         metrics = summarize_metrics(transformed)
-        alerts = generate_alerts(transformed)
-        return transformed, report, mart, metrics, alerts
+        return transformed, report, mart, metrics
     return load_default_data()
 
 
@@ -1165,7 +1144,7 @@ def page_process_data(data: pd.DataFrame, report, metrics: dict[str, Any], mart:
 
 def main() -> None:
     inject_style()
-    data, report, mart, metrics, _alerts = get_active_data()
+    data, report, mart, metrics = get_active_data()
     page, filtered = sidebar(report, data)
 
     if report.status == "ERROR":

@@ -2,7 +2,7 @@
 
 ## 1. Persiapan Environment
 
-Jalankan perintah berikut dari folder project:
+Jalankan dari folder project:
 
 ```powershell
 python -m venv .venv
@@ -15,15 +15,13 @@ python -m venv .venv
 .\.venv\Scripts\python.exe etl\run_etl.py
 ```
 
-Output ETL akan tersimpan pada:
+Script ETL akan:
 
-- `data/processed/bbri_daily_market_processed.csv`
-- `data/processed/Fact_DailyMarketTrading.csv`
-- `data/processed/Dim_Date.csv`
-- `data/processed/Dim_Stock.csv`
-- `outputs/validation/validation_report.json`
-- `outputs/validation/metrics_summary.json`
-- `outputs/validation/alerts.json`
+- membaca `data/raw/BBRI.csv`,
+- memvalidasi schema, ticker, tanggal, numerik, duplicate date, dan OHLC,
+- memproses nilai `Open = 0` menjadi `Open_Clean`,
+- menghitung return, moving average, volatility, drawdown, foreign flow, dan volume ratio,
+- membentuk data mart di memory untuk kebutuhan dashboard.
 
 ## 3. Menjalankan Dashboard
 
@@ -31,35 +29,14 @@ Output ETL akan tersimpan pada:
 .\.venv\Scripts\python.exe -m streamlit run dashboard\app.py
 ```
 
-Dashboard memiliki dua halaman utama:
+Halaman dashboard:
 
-- `Dashboard`: Executive Signal Dashboard berisi market status, corporate action watch, KPI sinyal, chart olahan, executive insight, alert, dan rekomendasi tindakan.
-- `Proses Data`: upload CSV baru, validasi data, alur ETL, dan preview data transformasi.
+- `Dashboard`: KPI, visual signal board, trend harga, drawdown, foreign flow, komposisi status, monthly return heatmap, volume ratio, dan volatility.
+- `Proses Data`: upload CSV, validasi, quality check, ETL flow, output data mart, dan preview data transformasi.
 
-Chart utama pada halaman Dashboard sudah berupa chart olahan:
+## 4. Format CSV Baru
 
-- Close price vs MA20 dan MA60.
-- Drawdown zone dengan batas watch -10% dan pressure -20%.
-- Rolling net foreign flow 20 hari.
-- Volume ratio 20 hari dibanding return harian.
-- Rolling volatility 20 hari dengan threshold watch 45%.
-
-Untuk menjaga performa, halaman Dashboard hanya merender tiga chart utama saat pertama dibuka. Chart volume spike dan volatility trend tersedia di expander `Analisis Lanjutan`. Jika rentang waktu yang dipilih lebih dari satu tahun, data chart otomatis diagregasi mingguan agar rendering lebih ringan.
-
-## 4. Membuka Notebook ETL
-
-Disarankan membuka file notebook langsung melalui VS Code atau Jupyter yang sudah ada di komputer. Jika ingin menjalankan notebook dari environment project, install dependency opsional terlebih dahulu:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-notebook.txt
-.\.venv\Scripts\python.exe -m notebook notebooks\ETL_BBRI_Market_Intelligence.ipynb
-```
-
-Notebook ETL digunakan untuk menunjukkan proses extract, validate, transform, load, metrics, dan alert secara bertahap. Dashboard tetap menggunakan `etl/pipeline.py` sebagai engine utama agar prosesnya reusable.
-
-## 5. Format CSV Baru
-
-CSV baru harus mempertahankan struktur kolom utama seperti `BBRI.csv`. Kolom penting yang wajib ada antara lain:
+CSV baru harus mempertahankan struktur kolom utama seperti `BBRI.csv`, terutama:
 
 - `Date`
 - `Ticker`
@@ -77,6 +54,6 @@ CSV baru harus mempertahankan struktur kolom utama seperti `BBRI.csv`. Kolom pen
 
 Data akan ditolak jika ticker bukan `BBRI`, tanggal tidak valid, kolom wajib hilang, nilai numerik utama gagal dikonversi, atau terdapat duplicate date.
 
-## 6. Catatan Environment
+## 5. Catatan
 
-Folder `.venv` tidak perlu dikumpulkan. Folder tersebut hanya environment lokal untuk menjalankan dashboard dan notebook.
+Folder `.venv` tidak perlu dikumpulkan atau diunggah ke GitHub. Project ini tidak membutuhkan notebook dan tidak menyimpan output ETL ke folder terpisah.

@@ -10,7 +10,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run ETL for BBRI BI dashboard.")
     parser.add_argument("--input", default=str(Path(__file__).resolve().parents[1] / "data" / "raw" / "BBRI.csv"))
     args = parser.parse_args()
-    data, report, mart, metrics, alerts = run_pipeline(args.input, write_outputs=True)
+    data, report, mart, metrics = run_pipeline(args.input)
     print(f"Validation status: {report.status}")
     print(f"Rows: {report.row_count}, Columns: {report.column_count}")
     print(f"Date range: {report.min_date} to {report.max_date}")
@@ -28,9 +28,6 @@ def main() -> None:
         print(f"Processed rows: {len(data)}")
         print(f"Mart tables: {', '.join(mart.keys())}")
         print(f"Latest close: {metrics['latest_close']}")
-        print("Alerts:")
-        for alert in alerts:
-            print(f"- {alert['level']}: {alert['condition']}")
 
 
 if __name__ == "__main__":

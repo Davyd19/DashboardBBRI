@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from pathlib import Path
 from typing import IO, Any
 
@@ -11,8 +10,6 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW_PATH = ROOT / "data" / "raw" / "BBRI.csv"
-PROCESSED_DIR = ROOT / "data" / "processed"
-VALIDATION_DIR = ROOT / "outputs" / "validation"
 
 REQUIRED_COLUMNS = [
     "Date",
@@ -318,76 +315,6 @@ def build_data_mart(data: pd.DataFrame) -> dict[str, pd.DataFrame]:
     }
 
 
-def generate_alerts(data: pd.DataFrame) -> list[dict[str, str]]:
-    latest = data.sort_values("Date").iloc[-1]
-    recent = data.sort_values("Date").tail(20)
-    alerts: list[dict[str, str]] = []
-
-    period_return = (latest["Close"] / recent.iloc[0]["Close"]) - 1 if len(recent) > 1 else 0
-    net_foreign_20d = latest.get("Rolling_Net_Foreign_20D", recent["Net_Foreign_Flow"].sum())
-    if pd.isna(net_foreign_20d):
-        net_foreign_20d = recent["Net_Foreign_Flow"].sum()
-    avg_volume_20d = recent["Volume"].mean()
-    latest_volume = latest["Volume"]
-    volume_ratio_20d = latest.get("Volume_Ratio_20D", latest_volume / avg_volume_20d if avg_volume_20d else np.nan)
-
-    if period_return <= -0.05 and latest["Drawdown"] <= -0.15:
-        alerts.append(
-            {
-                "level": "High",
-                "condition": "Tekanan harga meningkat",
-                "insight": "Return 20 hari negatif dan drawdown berada pada area tekanan.",
-                "recommendation": "Lakukan monitoring ketat dan siapkan kajian komunikasi pasar.",
-            }
-        )
-    if net_foreign_20d < 0:
-        alerts.append(
-            {
-                "level": "Medium",
-                "condition": "Foreign sell pressure",
-                "insight": "Akumulasi net foreign flow 20 hari terakhir berada di zona negatif.",
-                "recommendation": "Investor Relations perlu memantau narasi pasar dan minat investor asing.",
-            }
-        )
-    if pd.notna(volume_ratio_20d) and volume_ratio_20d >= 1.5 and latest["Daily_Return"] < 0:
-        alerts.append(
-            {
-                "level": "Medium",
-                "condition": "Volume tinggi saat harga turun",
-                "insight": "Transaksi meningkat saat return harian negatif, mengindikasikan tekanan distribusi.",
-                "recommendation": "Evaluasi risiko likuiditas dan pantau transaksi beberapa hari berikutnya.",
-            }
-        )
-    if pd.notna(latest["Rolling_Volatility_20D"]) and latest["Rolling_Volatility_20D"] >= 0.45:
-        alerts.append(
-            {
-                "level": "Medium",
-                "condition": "Volatilitas meningkat",
-                "insight": "Volatilitas 20 hari berada di atas batas watch dashboard.",
-                "recommendation": "Hindari keputusan aksi agresif tanpa validasi fundamental dan regulasi.",
-            }
-        )
-    if latest["Drawdown"] <= -0.20 and pd.notna(volume_ratio_20d) and volume_ratio_20d >= 1:
-        alerts.append(
-            {
-                "level": "Watch",
-                "condition": "Buyback Watch",
-                "insight": "Harga berada dalam drawdown tinggi namun likuiditas transaksi masih memadai.",
-                "recommendation": "Pertimbangkan kajian awal buyback sebagai opsi, bukan keputusan final.",
-            }
-        )
-    if not alerts:
-        alerts.append(
-            {
-                "level": "Normal",
-                "condition": "Kondisi pasar stabil",
-                "insight": "Tidak ada indikator tekanan utama berdasarkan rule dashboard.",
-                "recommendation": "Lanjutkan monitoring rutin melalui dashboard.",
-            }
-        )
-    return alerts
-
-
 def summarize_metrics(data: pd.DataFrame) -> dict[str, Any]:
     ordered = data.sort_values("Date")
     latest = ordered.iloc[-1]
@@ -418,48 +345,12 @@ def summarize_metrics(data: pd.DataFrame) -> dict[str, Any]:
 
 def run_pipeline(
     source: str | Path | IO[bytes] | IO[str] = RAW_PATH,
-    write_outputs: bool = True,
-) -> tuple[pd.DataFrame, ValidationReport, dict[str, pd.DataFrame], dict[str, Any], list[dict[str, str]]]:
+) -> tuple[pd.DataFrame, ValidationReport, dict[str, pd.DataFrame], dict[str, Any]]:
     raw = read_csv(source)
     validated, report = validate_dataframe(raw)
     if report.status == "ERROR":
-        return validated, report, {}, {}, []
+        return validated, report, {}, {}
     transformed = transform_dataframe(validated)
     mart = build_data_mart(transformed)
     metrics = summarize_metrics(transformed)
-    alerts = generate_alerts(transformed)
-
-    if write_outputs:
-        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-        VALIDATION_DIR.mkdir(parents=True, exist_ok=True)
-        _safe_to_csv(transformed, PROCESSED_DIR / "bbri_daily_market_processed.csv")
-        for name, frame in mart.items():
-            _safe_to_csv(frame, PROCESSED_DIR / f"{name}.csv")
-        _safe_write_text(VALIDATION_DIR / "validation_report.json", json.dumps(asdict(report), indent=2))
-        _safe_write_text(VALIDATION_DIR / "metrics_summary.json", json.dumps(metrics, indent=2))
-        _safe_write_text(VALIDATION_DIR / "alerts.json", json.dumps(alerts, indent=2))
-    return transformed, report, mart, metrics, alerts
-
-
-def _safe_to_csv(frame: pd.DataFrame, path: Path) -> None:
-    csv_text = frame.to_csv(index=False)
-    _safe_write_text(path, csv_text)
-
-
-def _safe_write_text(path: Path, text: str) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        path.write_text(text, encoding="utf-8")
-        return path
-    except PermissionError:
-        fallback = path.with_name(f"{path.stem}_generated{path.suffix}")
-        fallback.write_text(text, encoding="utf-8")
-        return fallback
-
-
-if __name__ == "__main__":
-    transformed_df, validation_report, mart_tables, summary, alert_rows = run_pipeline()
-    print(json.dumps(asdict(validation_report), indent=2))
-    print(json.dumps(summary, indent=2))
-    print(f"Generated processed rows: {len(transformed_df)}")
-    print(f"Generated mart tables: {', '.join(mart_tables.keys())}")
+    return transformed, report, mart, metrics

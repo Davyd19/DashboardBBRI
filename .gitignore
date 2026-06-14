@@ -1,3 +1,10 @@
 .venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+.streamlit/secrets.toml
+data/processed/
+outputs/
+outputs_redesign/
+notebooks/
+requirements-notebook.txt
